@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<h2>Register</h2>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="flash">{{ messages[0] }}</div>
+  {% endif %}
+{% endwith %}
+<form method="POST">
+    Name: <input name="name" required><br>
+    Mobile: <input name="mobile" required><br>
+    Email: <input name="email" required><br>
+    Password: <input name="password" type="password" required><br>
+    Confirm Password: <input name="confirm" type="password" required><br>
+    <input type="submit" value="Register">
+</form>
+<a href="/login">Back to Login</a>
+</body>
+</html>
