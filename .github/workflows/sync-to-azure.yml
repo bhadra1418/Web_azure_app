@@ -1,20 +1,28 @@
-name: Sync to Azure Repo
+name: Sync GitHub to Azure Repo
 
 on:
   push:
     branches:
-      - master
+      - master  # change to 'main' if that's your branch name
 
 jobs:
   sync:
-    runs-on: windows-latest
+    runs-on: windows-latest  # since you're on PowerShell
+
     steps:
-      - name: Checkout GitHub Repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Push to Azure DevOps Repo
+      - name: Configure Git
         run: |
-          git config --global user.name "veera"
           git config --global user.email "veerabhadra1418@gmail.com"
-          git remote add azure https://$(AZURE_PAT)@dev.azure.com/veerabhadra14180335/web_app/_git/web_app
+          git config --global user.name "veera"
+        shell: pwsh
+
+      - name: Push to Azure Repo
+        run: |
+          git remote add azure https://$env:AZURE_PAT@dev.azure.com/veerabhadra14180335/web_app/_git/web_app
           git push azure master --force
+        env:
+          AZURE_PAT: ${{ secrets.AZURE_PAT }}
+        shell: pwsh
