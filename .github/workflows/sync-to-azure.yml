@@ -16,5 +16,5 @@ jobs:
         run: |
           git config --global user.name "veera"
           git config --global user.email "veerabhadra1418@gmail.com"
-          git remote add azure https://veerabhadra14180335@dev.azure.com/veerabhadra14180335/web_app/_git/web_app
+          git remote add azure https://$(AZURE_PAT)@dev.azure.com/veerabhadra14180335/web_app/_git/web_app
           git push azure master --force
