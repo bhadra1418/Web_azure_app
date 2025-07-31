@@ -8,8 +8,8 @@ def test_login_flow():
     driver.get("http://127.0.0.1:5000/login")
 
     # Simulate login
-    driver.find_element(By.NAME, "email").send_keys("admin@gmail.com")
-    driver.find_element(By.NAME, "password").send_keys("admin")
+    driver.find_element(By.NAME, "email").send_keys("demo@gmail.com")
+    driver.find_element(By.NAME, "password").send_keys("demo")
     driver.find_element(By.CSS_SELECTOR, "input[type='submit']").click()
 
     time.sleep(2)
