@@ -3,7 +3,7 @@ name: Sync to Azure Repo
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   sync:
