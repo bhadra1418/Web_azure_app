@@ -3,15 +3,17 @@ name: Sync GitHub to Azure Repo
 on:
   push:
     branches:
-      - master  # change to 'main' if that's your branch name
+      - master  # or main
 
 jobs:
   sync:
-    runs-on: windows-latest  # since you're on PowerShell
+    runs-on: windows-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout full history
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # disable shallow clone
 
       - name: Configure Git
         run: |
