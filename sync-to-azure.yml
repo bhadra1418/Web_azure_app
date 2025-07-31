@@ -1,0 +1,20 @@
+name: Sync to Azure Repo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout GitHub Repo
+        uses: actions/checkout@v3
+
+      - name: Push to Azure DevOps Repo
+        run: |
+          git config --global user.name "veera"
+          git config --global user.email "veerabhadra1418@gmail.com"
+          git remote add azure https://veerabhadra14180335@dev.azure.com/veerabhadra14180335/web_app/_git/web_app
+          git push azure main --force
