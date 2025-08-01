@@ -1,0 +1,45 @@
+trigger:
+  - master
+
+pool:
+  name: selfpool  # Self-hosted agent
+
+steps:
+
+  - script: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+    displayName: 'Install dependencies'
+
+  - powershell: |
+      $env:FLASK_ENV = "development"
+      Start-Process -FilePath "python" -ArgumentList "app.py"
+      Start-Sleep -Seconds 10
+    displayName: 'Start Flask App in Background'
+
+  - powershell: |
+      # Wait until the Flask app responds (e.g., localhost:5000)
+      $maxRetries = 10
+      $success = $false
+      for ($i = 0; $i -lt $maxRetries; $i++) {
+        try {
+          Invoke-WebRequest -Uri "http://127.0.0.1:5000" -UseBasicParsing
+          $success = $true
+          break
+        } catch {
+          Start-Sleep -Seconds 2
+        }
+      }
+      if (-not $success) {
+        Write-Error "Flask app did not start in time."
+        exit 1
+      }
+    displayName: 'Wait for Flask App to be ready'
+
+  - script: |
+      python tests/test_login_flow.py
+    displayName: 'Run Selenium Login Flow Test'
+
+  - powershell: |
+      Get-Process python | Where-Object { $_.MainWindowTitle -ne "" } | ForEach-Object { $_.Kill() }
+    displayName: 'Stop Flask App'
