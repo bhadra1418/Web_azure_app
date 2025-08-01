@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h2>Your Cart</h2>
+
+    {% if items %}
+    <table border="1" cellpadding="6">
+        <tr>
+            <th>Product</th><th>Price</th><th>Quantity</th><th>Subtotal</th>
+        </tr>
+        {% for name, price, qty, subtotal in items %}
+        <tr>
+            <td>{{ name }}</td><td>₹{{ price }}</td><td>{{ qty }}</td><td>₹{{ subtotal }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <h3>Total: ₹{{ total }}</h3>
+
+    <a href="{{ url_for('pay') }}"><button>Pay Now</button></a>
+
+    {% else %}
+    <p style="color: red; font-size: 18px;">🛒 Your cart is empty. Please add some products.</p>
+    {% endif %}
+
+    <br><br>
+    <a href="{{ url_for('products') }}">← Back to Products</a>
+</body>
+</html>

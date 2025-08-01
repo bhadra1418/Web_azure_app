@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>order success</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<h2>Thank you, {{ name }}!</h2>
+<p>Your order was placed successfully.</p>
+<a href="{{ url_for('products') }}">Shop More</a>
+</body>
+</html>
