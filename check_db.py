@@ -1,24 +1,24 @@
 import sqlite3
 
-try:
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
+conn = sqlite3.connect("users.db")
+c = conn.cursor()
 
-    cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
-    print("📋 Tables found in DB:", cursor.fetchall())
+# Tables
+print("📋 Tables found in DB:", list(c.execute("SELECT name FROM sqlite_master WHERE type='table';")))
 
-    cursor.execute("SELECT * FROM products")
-    products = cursor.fetchall()
+# Users
+print("\n✅ Users in DB:")
+for row in c.execute("SELECT * FROM users"):
+    print(row)
 
-    print("\n✅ Products in DB:")
-    if not products:
-        print("❌ No products found.")
-    else:
-        for p in products:
-            print(p)
+# Products
+print("\n✅ Products in DB:")
+for row in c.execute("SELECT * FROM products"):
+    print(row)
 
-except Exception as e:
-    print("❌ Error:", e)
+# Cart
+print("\n✅ Cart Contents:")
+for row in c.execute("SELECT * FROM cart"):
+    print(row)
 
-finally:
-    conn.close()
+conn.close()
