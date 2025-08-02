@@ -37,7 +37,7 @@ steps:
     displayName: 'Wait for Flask App to be ready'
 
   - script: |
-      python tests/test_login_flow.py
+      python Automation/tests/test_login_flow.py
     displayName: 'Run Selenium Login Flow Test'
 
   - powershell: |
