@@ -9,6 +9,7 @@ steps:
   - script: |
       python -m pip install --upgrade pip
       pip install -r requirements.txt
+      pip install pytest
     displayName: 'Install dependencies'
 
   - powershell: |
@@ -37,7 +38,7 @@ steps:
     displayName: 'Wait for Flask App to be ready'
 
   - script: |
-      python Automation/tests/test_login_flow.py
+      pytest Automation/tests
     displayName: 'Run Selenium Login Flow Test'
 
   - powershell: |
