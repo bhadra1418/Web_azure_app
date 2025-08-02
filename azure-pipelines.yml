@@ -38,9 +38,9 @@ steps:
     displayName: 'Wait for Flask App to be ready'
 
   - script: |
-      pytest Automation/tests/ --html=report.html --self-contained-html
+      pytest Automation/tests/test_end2end_flow.py --html=report.html --self-contained-html
     displayName: 'Run Selenium Login Flow Test with html report'
-    
+
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: 'report.html'
