@@ -9,7 +9,7 @@ steps:
   - script: |
       python -m pip install --upgrade pip
       pip install -r requirements.txt
-      pip install pytest
+      pip install pytest pytest-html
     displayName: 'Install dependencies'
 
   - powershell: |
@@ -38,8 +38,14 @@ steps:
     displayName: 'Wait for Flask App to be ready'
 
   - script: |
-      pytest Automation/tests/
-    displayName: 'Run Selenium Login Flow Test'
+      pytest Automation/tests/ --html=report.html --self-contained-html
+    displayName: 'Run Selenium Login Flow Test with html report'
+    
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: 'report.html'
+      artifactName: 'TestReport'
+    displayName: 'Publish HTML Test Report'
 
   - powershell: |
       Get-Process python | Where-Object { $_.MainWindowTitle -ne "" } | ForEach-Object { $_.Kill() }
