@@ -63,7 +63,7 @@ stages:
     jobs:
       - job: DeployToAzure
         pool:
-          vmImage: 'windows-latest'
+          name: 'selfpool'
         variables:
           azureSubscription: 'Web_app_deploy'
           appName: 'web_app'
