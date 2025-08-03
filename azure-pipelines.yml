@@ -84,5 +84,5 @@ stages:
           - task: AzureWebApp@1
             inputs:
               azureSubscription: 'Azure subscription 1'
-              appName: 'Web_app_deploy'
+              appName: 'webapp-deploy'
               package: '$(Build.ArtifactStagingDirectory)/flaskapp.zip'
