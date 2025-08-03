@@ -1,52 +1,92 @@
 trigger:
   - master
 
-pool:
-  name: selfpool  # Self-hosted agent
+stages:
+  - stage: Test
+    jobs:
+      - job: Run_Tests
+        pool:
+          name: selfpool
+        steps:
+          # ✅ Install dependencies
+          - script: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+              pip install pytest pytest-html
+            displayName: 'Install dependencies'
 
-steps:
+          # ✅ Start Flask app in background
+          - powershell: |
+              Start-Process -FilePath "python" -ArgumentList "app.py"
+              Start-Sleep -Seconds 10
+            displayName: 'Start Flask App'
 
-  - script: |
-      python -m pip install --upgrade pip
-      pip install -r requirements.txt
-      pip install pytest pytest-html
-    displayName: 'Install dependencies'
+          # ✅ Wait for Flask App to be ready
+          - powershell: |
+              $maxRetries = 10
+              $success = $false
+              for ($i = 0; $i -lt $maxRetries; $i++) {
+                try {
+                  Invoke-WebRequest -Uri "http://127.0.0.1:5000" -UseBasicParsing
+                  $success = $true
+                  break
+                } catch {
+                  Start-Sleep -Seconds 2
+                }
+              }
+              if (-not $success) {
+                Write-Error "Flask app did not start in time."
+                exit 1
+              }
+            displayName: 'Wait for Flask App'
 
-  - powershell: |
-      $env:FLASK_ENV = "development"
-      Start-Process -FilePath "python" -ArgumentList "app.py"
-      Start-Sleep -Seconds 10
-    displayName: 'Start Flask App in Background'
+          # ✅ Run Selenium Tests
+          - script: |
+              pytest Automation/tests/test_end2end_flow.py --html=report.html --self-contained-html
+            displayName: 'Run Selenium Tests'
 
-  - powershell: |
-      # Wait until the Flask app responds (e.g., localhost:5000)
-      $maxRetries = 10
-      $success = $false
-      for ($i = 0; $i -lt $maxRetries; $i++) {
-        try {
-          Invoke-WebRequest -Uri "http://127.0.0.1:5000" -UseBasicParsing
-          $success = $true
-          break
-        } catch {
-          Start-Sleep -Seconds 2
-        }
-      }
-      if (-not $success) {
-        Write-Error "Flask app did not start in time."
-        exit 1
-      }
-    displayName: 'Wait for Flask App to be ready'
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: 'report.html'
+              artifactName: 'TestReport'
+            displayName: 'Publish HTML Test Report'
 
-  - script: |
-      pytest Automation/tests/test_end2end_flow.py --html=report.html --self-contained-html
-    displayName: 'Run Selenium Login Flow Test with html report'
+          # ✅ Kill Flask app
+          - powershell: |
+              Get-Process python | Where-Object { $_.MainWindowTitle -ne "" } | ForEach-Object { $_.Kill() }
+            displayName: 'Stop Flask App'
 
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathToPublish: 'report.html'
-      artifactName: 'TestReport'
-    displayName: 'Publish HTML Test Report'
 
-  - powershell: |
-      Get-Process python | Where-Object { $_.MainWindowTitle -ne "" } | ForEach-Object { $_.Kill() }
-    displayName: 'Stop Flask App'
+  - stage: Deploy
+    dependsOn: Test
+    condition: succeeded()
+    jobs:
+      - job: DeployToAzure
+        pool:
+          vmImage: 'windows-latest'
+        variables:
+          azureSubscription: 'Web_app_deploy'
+          appName: 'web_app'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.x'
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            displayName: 'Install requirements'
+
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/flaskapp.zip'
+              replaceExistingArchive: true
+
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: '$(Azure subscription 1)'
+              appName: '$(web_app)'
+              package: '$(Build.ArtifactStagingDirectory)/flaskapp.zip'
