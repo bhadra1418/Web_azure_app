@@ -11,7 +11,7 @@ def test_e2e_userflow_checkout(driver):
     product_page = ProductsPage(driver)  # Correct class instantiation
 
     try:
-        login.login("demo1@gmail.com", "demo1")
+        login.login("demo1@gmail.com", "demo")
         welcome_text = driver.find_element(By.CLASS_NAME, "topbar").text
         assert "Welcome" in welcome_text
     except Exception as e:
